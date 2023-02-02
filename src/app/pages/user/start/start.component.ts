@@ -1,6 +1,7 @@
 import { LocationStrategy } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { error } from 'console';
 import { QuestionService } from 'src/app/service/question.service';
 import Swal from 'sweetalert2';
 
@@ -36,9 +37,9 @@ export class StartComponent implements OnInit {
         this.questions = data;
         this.timer=this.questions.length * 2 *60;
         console.log(this.questions);
-        this.questions.forEach((element: any) => {
-          element['givenAnswer'] = '';
-        });
+        // this.questions.forEach((element: any) => {
+        //   element['givenAnswer'] = '';
+        // });
         this.startTimer();
       },
       (error) => Swal.fire('error', 'Error while fetching data', 'error')
@@ -89,21 +90,37 @@ export class StartComponent implements OnInit {
   }
   evalQuiz()
   {
-     // calculation
-     this.isSubmited = true;
-     this.questions.forEach((q: any) => {
-       if (q.givenAnswer == q.answer) {
-         this.correctAnswer++;
-         let singleMarks = this.questions[0].quiz.maxMarks / this.questions.length;
-         this.marksGot += singleMarks;
-       }
+    this._question.evalQuiz(this.questions).subscribe(
+      (data: any)=>{
+          this.marksGot=parseFloat(Number(data.marksGot).toFixed(2));
+          this.correctAnswer = data.correctAnswers;
+          this.attempted=data.attempted;
+          this.isSubmited=true;
+      },(error) => 
+      {
 
-       if (q.givenAnswer.trim() != '') {
-         this.attempted++;
-       }
-     });
-     console.log('correct answers ' + this.correctAnswer);
-     console.log('marks got ' + this.marksGot);
-     console.log('attempted ' + this.attempted);
+      }
+    )
+    //  // calculation
+    //  this.isSubmited = true;
+    //  this.questions.forEach((q: any) => {
+    //    if (q.givenAnswer == q.answer) {
+    //      this.correctAnswer++;
+    //      let singleMarks = this.questions[0].quiz.maxMarks / this.questions.length;
+    //      this.marksGot += singleMarks;
+    //    }
+
+    //    if (q.givenAnswer.trim() != '') {
+    //      this.attempted++;
+    //    }
+    //  });
+    //  console.log('correct answers ' + this.correctAnswer);
+    //  console.log('marks got ' + this.marksGot);
+    //  console.log('attempted ' + this.attempted);
+  }
+
+  printPage()
+  {
+    window.print();
   }
 }
